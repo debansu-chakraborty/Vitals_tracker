@@ -1,7 +1,7 @@
+
 import joblib
 import numpy as np
 from pathlib import Path
-
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / 'ml' / 'model.joblib'
 
@@ -13,7 +13,7 @@ def load_model():
 
 
 def build_feature_vector(entry: dict):
-
+    
     v = []
     v.append(entry.get('heart_rate', np.nan))
     v.append(entry.get('hr_variability', np.nan))
@@ -30,7 +30,7 @@ def predict_risk(entry: dict):
     if model is None:
         return None
     X = build_feature_vector(entry)
-    
+
     try:
         prob = model.predict_proba(X)[0][1]
         return float(prob)
