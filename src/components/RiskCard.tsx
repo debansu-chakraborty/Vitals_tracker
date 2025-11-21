@@ -1,7 +1,7 @@
-import { VitalsEntry } from '../lib/mockApi';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Heart, Activity, Droplet, Wind, Footprints, Moon, Candy, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { VitalsEntry } from '../lib/api';
 
 interface RiskCardProps {
   entry: VitalsEntry;

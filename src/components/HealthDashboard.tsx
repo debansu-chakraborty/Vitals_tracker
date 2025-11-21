@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { mockApi, VitalsEntry } from '../lib/mockApi';
 import { RiskCard } from './RiskCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
 import { Activity, TrendingUp, TrendingDown, Minus, Heart, AlertTriangle } from 'lucide-react';
+import { getVitals, getHealthScore, VitalsEntry } from '../lib/api'; 
 
 interface HealthDashboardProps {
   userId: string;
@@ -20,19 +20,23 @@ export function HealthDashboard({ userId, refreshTrigger = 0 }: HealthDashboardP
       setIsLoading(true);
       try {
         const [vitalsData, scoreData] = await Promise.all([
-          mockApi.getVitals(userId),
-          mockApi.getHealthScore(userId)
+          getVitals(userId), 
+          getHealthScore(userId) 
         ]);
         setVitals(vitalsData);
         setHealthScore(scoreData.health_score);
       } catch (error) {
         console.error('Failed to fetch data:', error);
+        setVitals([]);
+        setHealthScore(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    if (userId) {
+      fetchData();
+    }
   }, [userId, refreshTrigger]);
 
   const getHealthScoreLevel = (score: number | null) => {
@@ -54,7 +58,7 @@ export function HealthDashboard({ userId, refreshTrigger = 0 }: HealthDashboardP
     const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
     const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
     
-    const diff = olderAvg - recentAvg; // Lower risk = better
+    const diff = olderAvg - recentAvg;
     
     if (diff > 0.05) return { direction: 'improving', icon: TrendingUp };
     if (diff < -0.05) return { direction: 'declining', icon: TrendingDown };
@@ -74,6 +78,7 @@ export function HealthDashboard({ userId, refreshTrigger = 0 }: HealthDashboardP
         <Card>
           <CardContent className="p-8 flex items-center justify-center">
             <Activity className="size-6 animate-pulse text-muted-foreground" />
+            <span className="ml-2 text-muted-foreground">Loading dashboard...</span>
           </CardContent>
         </Card>
       </div>
@@ -82,7 +87,6 @@ export function HealthDashboard({ userId, refreshTrigger = 0 }: HealthDashboardP
 
   return (
     <div className="space-y-6">
-      {/* Health Score Overview */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -133,7 +137,6 @@ export function HealthDashboard({ userId, refreshTrigger = 0 }: HealthDashboardP
         </CardContent>
       </Card>
 
-      {/* Recent Vitals */}
       <div>
         <h3 className="mb-4">Recent Readings</h3>
         {vitals.length === 0 ? (

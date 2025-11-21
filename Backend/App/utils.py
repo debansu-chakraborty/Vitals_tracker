@@ -1,4 +1,4 @@
-# utils.py - Final prediction utility
+
 import joblib
 import numpy as np
 from pathlib import Path
@@ -11,9 +11,9 @@ def load_model():
     except Exception:
         return None
 
-# Feature vector builder: KEEP THIS ORDER CONSISTENT with train.py features list!
+
 def build_feature_vector(entry: dict):
-    # Order: heart_rate, hr_variability, systolic, diastolic, spo2, steps, sleep_hours, glucose
+    
     v = []
     v.append(entry.get('heart_rate', np.nan))
     v.append(entry.get('hr_variability', np.nan))
@@ -30,7 +30,7 @@ def predict_risk(entry: dict):
     if model is None:
         return None
     X = build_feature_vector(entry)
-    # model expected to output probability for positive class (1 = Risk)
+
     try:
         prob = model.predict_proba(X)[0][1]
         return float(prob)

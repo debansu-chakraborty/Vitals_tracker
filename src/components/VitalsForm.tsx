@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { mockApi, VitalsEntry } from '../lib/mockApi';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -7,6 +6,7 @@ import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Activity, Heart, Droplet, Wind, Footprints, Moon, Candy } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
+import { postVitals, VitalsEntry } from '../lib/api'; 
 
 interface VitalsFormProps {
   userId: string;
@@ -50,13 +50,12 @@ export function VitalsForm({ userId, onSaved }: VitalsFormProps) {
         notes: form.notes || null
       };
 
-      const result = await mockApi.postVitals(payload);
+      const result = await postVitals(payload); 
       
       toast.success('Vitals saved successfully!', {
         description: `Risk score: ${result.risk_score !== null ? Math.round(result.risk_score * 100) + '%' : 'N/A'}`
       });
 
-      // Reset form
       setForm({
         heart_rate: '',
         hr_variability: '',
@@ -71,7 +70,8 @@ export function VitalsForm({ userId, onSaved }: VitalsFormProps) {
 
       onSaved?.(result);
     } catch (error) {
-      toast.error('Failed to save vitals');
+      const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+      toast.error('Failed to save vitals', { description: message });
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -79,70 +79,14 @@ export function VitalsForm({ userId, onSaved }: VitalsFormProps) {
   };
 
   const inputGroups = [
-    {
-      icon: Heart,
-      label: 'Heart Rate',
-      name: 'heart_rate',
-      placeholder: 'e.g., 72',
-      unit: 'bpm',
-      description: 'Resting heart rate'
-    },
-    {
-      icon: Activity,
-      label: 'HRV',
-      name: 'hr_variability',
-      placeholder: 'e.g., 45',
-      unit: 'ms',
-      description: 'Heart rate variability'
-    },
-    {
-      icon: Droplet,
-      label: 'Systolic BP',
-      name: 'systolic',
-      placeholder: 'e.g., 120',
-      unit: 'mmHg',
-      description: 'Upper blood pressure'
-    },
-    {
-      icon: Droplet,
-      label: 'Diastolic BP',
-      name: 'diastolic',
-      placeholder: 'e.g., 80',
-      unit: 'mmHg',
-      description: 'Lower blood pressure'
-    },
-    {
-      icon: Wind,
-      label: 'SpO2',
-      name: 'spo2',
-      placeholder: 'e.g., 98',
-      unit: '%',
-      description: 'Oxygen saturation'
-    },
-    {
-      icon: Footprints,
-      label: 'Steps',
-      name: 'steps',
-      placeholder: 'e.g., 8000',
-      unit: 'steps',
-      description: 'Daily step count'
-    },
-    {
-      icon: Moon,
-      label: 'Sleep',
-      name: 'sleep_hours',
-      placeholder: 'e.g., 7.5',
-      unit: 'hours',
-      description: 'Hours of sleep'
-    },
-    {
-      icon: Candy,
-      label: 'Glucose',
-      name: 'glucose',
-      placeholder: 'e.g., 90',
-      unit: 'mg/dL',
-      description: 'Blood glucose level'
-    }
+    { icon: Heart, label: 'Heart Rate', name: 'heart_rate', placeholder: 'e.g., 72', unit: 'bpm', description: 'Resting heart rate' },
+    { icon: Activity, label: 'HRV', name: 'hr_variability', placeholder: 'e.g., 45', unit: 'ms', description: 'Heart rate variability' },
+    { icon: Droplet, label: 'Systolic BP', name: 'systolic', placeholder: 'e.g., 120', unit: 'mmHg', description: 'Upper blood pressure' },
+    { icon: Droplet, label: 'Diastolic BP', name: 'diastolic', placeholder: 'e.g., 80', unit: 'mmHg', description: 'Lower blood pressure' },
+    { icon: Wind, label: 'SpO2', name: 'spo2', placeholder: 'e.g., 98', unit: '%', description: 'Oxygen saturation' },
+    { icon: Footprints, label: 'Steps', name: 'steps', placeholder: 'e.g., 8000', unit: 'steps', description: 'Daily step count' },
+    { icon: Moon, label: 'Sleep', name: 'sleep_hours', placeholder: 'e.g., 7.5', unit: 'hours', description: 'Hours of sleep' },
+    { icon: Candy, label: 'Glucose', name: 'glucose', placeholder: 'e.g., 90', unit: 'mg/dL', description: 'Blood glucose level' }
   ];
 
   return (
@@ -184,19 +128,10 @@ export function VitalsForm({ userId, onSaved }: VitalsFormProps) {
               );
             })}
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="notes">Notes (optional)</Label>
-            <Textarea
-              id="notes"
-              name="notes"
-              placeholder="Any additional notes about how you're feeling..."
-              value={form.notes}
-              onChange={handleChange}
-              rows={3}
-            />
+            <Textarea id="notes" name="notes" placeholder="Any additional notes..." value={form.notes} onChange={handleChange} rows={3} />
           </div>
-
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save Vitals'}
           </Button>
