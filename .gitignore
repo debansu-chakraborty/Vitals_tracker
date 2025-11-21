@@ -1,0 +1,21 @@
+# --- Frontend (Node/React) ---
+node_modules/
+dist/
+build/
+.env
+.env.local
+npm-debug.log*
+yarn-debug.log*
+package-lock.json
+
+# --- Backend (Python) ---
+venv/
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite3
+
+# --- System Junk ---
+.DS_Store
+Thumbs.db
+.vscode/
